@@ -61,9 +61,21 @@ export async function analyzeVibeWithGemini(userInput) {
       }
     );
 
-    if (response.status === 403) throw new Error("API_KEY_INVALID");
-    if (!response.ok) throw new Error("Falha na API");
-    
+    // If we get a 403, the API key is invalid or doesn't have permissions for this API.
+    if (response.status === 403) {
+      let bodyText = '';
+      try { bodyText = await response.text(); } catch (e) { bodyText = 'Unable to parse response body'; }
+      console.error('[configAPI] Google API returned 403. Response body:', bodyText);
+      throw new Error("API_KEY_INVALID: " + (bodyText || '403 Forbidden'));
+    }
+
+    if (!response.ok) {
+      let bodyText = '';
+      try { bodyText = await response.text(); } catch (e) { bodyText = 'Unable to parse response body'; }
+      console.error('[configAPI] Google API error. Status:', response.status, 'Body:', bodyText);
+      throw new Error("API_ERROR: " + (bodyText || response.statusText));
+    }
+
     const data = await response.json();
     return JSON.parse(data.candidates?.[0]?.content?.parts?.[0]?.text);
 
