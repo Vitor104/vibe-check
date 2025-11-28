@@ -34,7 +34,7 @@ export default function App() {
       const minTime = new Promise(resolve => setTimeout(resolve, 800));
       const apiCall = analyzeVibeWithGemini(prompt);
       
-      const [_, result] = await Promise.all([minTime, apiCall]);
+      const [, result] = await Promise.all([minTime, apiCall]);
       
       setData(result);
       setShowResults(true);
