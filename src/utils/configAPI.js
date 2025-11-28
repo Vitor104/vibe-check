@@ -1,5 +1,6 @@
 export const GOOGLE_FONTS_LINK = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Playfair+Display:wght@400;700&family=Space+Mono:wght@400;700&family=Dancing+Script:wght@400;700&display=swap";
 
+
 // helper para selecionar a fonte correta no CSS
 export const getFontFamily = (family) => {
   switch (family) {
@@ -12,7 +13,7 @@ export const getFontFamily = (family) => {
 
 // função principal de chamada à API
 export async function analyzeVibeWithGemini(userInput) {
-  const API_KEY = "AIzaSyAhMKmws4BtSBbgR_fobW696_ofSkiZ5B0"; 
+  const API_KEY = process.env.REACT_APP_GEMINI_KEY;
   
   if (!API_KEY) {
     console.error("ERRO: API Key não configurada em src/utils/configAPI.js");
