@@ -2,15 +2,15 @@ import React from 'react';
 import { Music, Film } from 'lucide-react';
 
 /**
- * COMPONENT: RecommendationCard
- * Exibe um filme ou música sugerido.
+ * src/recommendationCard.js
+ * Este arquivo deve conter APENAS o visual do card, e não o site todo.
  */
 const RecommendationCard = ({ item, theme, delay }) => {
   const Icon = item.type === 'music' ? Music : Film;
   
   return (
     <div 
-      className="p-4 rounded-xl border backdrop-blur-sm transform transition-all duration-700 hover:-translate-y-1 hover:shadow-lg opacity-0 animate-fade-in-up"
+      className="p-4 rounded-xl border backdrop-blur-sm transform transition-all duration-700 hover:-translate-y-1 hover:shadow-lg opacity-0 animate-fade-in-up w-full"
       style={{ 
         borderColor: theme.accentColor + '40',
         backgroundColor: theme.backgroundColor === '#000000' || theme.backgroundColor < '#333' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
@@ -26,10 +26,10 @@ const RecommendationCard = ({ item, theme, delay }) => {
         >
           <Icon size={20} />
         </div>
-        <div>
-          <h3 className="font-bold text-lg leading-tight">{item.title}</h3>
-          {item.artist && <p className="text-sm opacity-80 mb-1">{item.artist}</p>}
-          <p className="text-xs opacity-70 italic mt-2">"{item.reason}"</p>
+        <div className="min-w-0 flex-1">
+          <h3 className="font-bold text-lg leading-tight truncate">{item.title}</h3>
+          {item.artist && <p className="text-sm opacity-80 mb-1 truncate">{item.artist}</p>}
+          <p className="text-xs opacity-70 italic mt-2 line-clamp-3">"{item.reason}"</p>
         </div>
       </div>
     </div>
