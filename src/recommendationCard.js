@@ -1,10 +1,7 @@
 import React from 'react';
 import { Music, Film } from 'lucide-react';
 
-/**
- * src/recommendationCard.js
- * Este arquivo deve conter APENAS o visual do card, e não o site todo.
- */
+
 const RecommendationCard = ({ item, theme, delay }) => {
   const Icon = item.type === 'music' ? Music : Film;
   
