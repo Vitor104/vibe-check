@@ -23,7 +23,7 @@ export async function analyzeVibeWithGemini(userInput) {
   console.log("1. Texto digitado:", userInput);
 
   // O endereço do seu servidor local (que criamos no Dia 2)
-  const BACKEND_URL = "https://vibe-check-dmq5.onrender.com";
+  const BACKEND_URL = "https://vibe-check-dmq5.onrender.com/api/analyze";
   
   try {
     const response = await fetch(BACKEND_URL, {
