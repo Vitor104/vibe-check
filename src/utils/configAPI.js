@@ -1,7 +1,11 @@
-export const GOOGLE_FONTS_LINK = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Playfair+Display:wght@400;700&family=Space+Mono:wght@400;700&family=Dancing+Script:wght@400;700&display=swap";
-const API_KEY = process.env.REACT_APP_GEMINI_KEY;
+/**
+ * src/utils/configAPI.js
+ * Agora conecta ao NOSSO backend (localhost:3001), 
+ * o Front não sabe mais nada sobre chaves de API ou Google.
+ */
 
-// helper para selecionar a fonte correta no CSS
+export const GOOGLE_FONTS_LINK = "https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Playfair+Display:wght@400;700&family=Space+Mono:wght@400;700&family=Dancing+Script:wght@400;700&display=swap";
+
 export const getFontFamily = (family) => {
   switch (family) {
     case 'serif': return '"Playfair Display", serif';
@@ -11,75 +15,41 @@ export const getFontFamily = (family) => {
   }
 };
 
-// função principal de chamada à API
+// Função refatorada para chamar o Backend Local
 export async function analyzeVibeWithGemini(userInput) {
   
-  
-  if (!API_KEY) {
-    console.error("ERRO: API Key não configurada em src/utils/configAPI.js");
-    throw new Error("API_KEY_MISSING");
-  }
-  
-  const systemPrompt = `
-    Você é um especialista em Design UI, Psicologia das Cores e Cultura Pop atualizada.
-    Sua tarefa é analisar o texto do usuário (um humor ou descrição de cena) e retornar um JSON estrito.
-    
-    Baseado na descrição, defina:
-    1. Uma paleta de cores CSS (hex codes) que combine perfeitamente com a 'vibe'.
-    2. Uma sugestão de fonte (sans-serif, serif, monospace, ou cursive).
-    3. 3 recomendações de mídia (Filmes, Músicas ou Álbuns) que combinem com o humor. 
-       IMPORTANTE: Misture clássicos com lançamentos recentes (últimos 5 anos).
-    
-    O formato da resposta DEVE ser APENAS este JSON válido, sem markdown:
-    {
-      "theme": {
-        "backgroundColor": "#HEX",
-        "textColor": "#HEX",
-        "buttonColor": "#HEX",
-        "buttonTextColor": "#HEX",
-        "accentColor": "#HEX",
-        "fontFamily": "nome da fonte genérica"
-      },
-      "vibeTitle": "Título curto (PT-BR)",
-      "recommendations": [
-        { "type": "movie" ou "music", "title": "Nome", "artist": "Artista/Diretor", "reason": "Motivo curto" }
-      ]
-    }
-  `;
+  // LOG DE DEBUG: Vamos ver o que está chegando aqui
+  console.log("--- DEBUG FRONTEND ---");
+  console.log("1. Texto digitado:", userInput);
 
+  // O endereço do seu servidor local (que criamos no Dia 2)
+  const BACKEND_URL = "http://localhost:3001/api/analyze";
+  
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: `Descrição: "${userInput}"` }] }],
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          generationConfig: { responseMimeType: "application/json" }
-        }),
-      }
-    );
-
-    // If we get a 403, the API key is invalid or doesn't have permissions for this API.
-    if (response.status === 403) {
-      let bodyText = '';
-      try { bodyText = await response.text(); } catch (e) { bodyText = 'Unable to parse response body'; }
-      console.error('[configAPI] Google API returned 403. Response body:', bodyText);
-      throw new Error("API_KEY_INVALID: " + (bodyText || '403 Forbidden'));
-    }
+    const response = await fetch(BACKEND_URL, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json" 
+      },
+      // Agora mandamos um JSON simples com a propriedade 'prompt'
+      // O server.js espera req.body.prompt, lembra?
+      body: JSON.stringify({ prompt: userInput }),
+    });
 
     if (!response.ok) {
-      let bodyText = '';
-      try { bodyText = await response.text(); } catch (e) { bodyText = 'Unable to parse response body'; }
-      console.error('[configAPI] Google API error. Status:', response.status, 'Body:', bodyText);
-      throw new Error("API_ERROR: " + (bodyText || response.statusText));
+      // Se o servidor der erro (500 ou 400), tentamos ler a mensagem
+      const errorData = await response.json().catch(() => ({}));
+      console.error("Erro retornado pelo Backend:", errorData);
+      throw new Error(errorData.error || "Falha na comunicação com o servidor");
     }
-
+    
+    // O backend já nos devolve o JSON pronto e limpo.
+    // Não precisamos mais fazer JSON.parse aqui, pois o server já fez.
     const data = await response.json();
-    return JSON.parse(data.candidates?.[0]?.content?.parts?.[0]?.text);
+    return data;
 
   } catch (error) {
-    throw error;
+    console.error("Erro capturado no frontend:", error);
+    throw error; // Repassa o erro para o App.js mostrar o alerta vermelho na tela
   }
 }
