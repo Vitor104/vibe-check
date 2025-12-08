@@ -21,7 +21,7 @@ app.post('/api/analyze', async (req, res) => {
       return res.status(400).json({ error: 'O prompt é obrigatório.' });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.REACT_APP_GEMINI_KEY;
 
     if (!apiKey) {
       console.error("ERRO CRÍTICO: Chave API não encontrada no .env");
