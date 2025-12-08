@@ -24,12 +24,16 @@ app.post('/api/analyze', async (req, res) => {
     const apiKey = process.env.REACT_APP_GEMINI_KEY;
 
     const systemPrompt = `
-      Você é um especialista em Design UI e Cultura Pop.
-      Analise o texto do usuário e retorne APENAS um JSON estrito com:
-      1. "theme": { backgroundColor, textColor, buttonColor, buttonTextColor, accentColor, fontFamily }
-      2. "vibeTitle": Título curto em PT-BR.
-      3. "recommendations": Array com 3 objetos { type ("movie"/"music"), title, artist, reason }.
-      Misture clássicos e novidades.
+      Gere um JSON estrito para uma UI baseada nesta vibe.
+      Responda APENAS o JSON. Sem markdown.
+      
+      {
+        "theme": { "backgroundColor": "#HEX", "textColor": "#HEX", "buttonColor": "#HEX", "buttonTextColor": "#HEX", "accentColor": "#HEX", "fontFamily": "serif/sans-serif/monospace/cursive" },
+        "vibeTitle": "Título curto (max 3 palavras) PT-PT",
+        "recommendations": [
+          { "type": "movie/music", "title": "Nome", "artist": "Autor", "reason": "Max 5 palavras" }
+        ]
+      }
     `;
 
     const response = await fetch(
