@@ -4,23 +4,29 @@ const cors = require('cors');
 
 const app = express();
 
-
 app.use(cors()); 
 app.use(express.json()); 
 
-// --- ROTAS ---
+app.get('/', (req, res) => {
+  res.send('✅ Backend do VibeCheck Online (v1.5 Stable Fix)!');
+});
+
 app.post('/api/analyze', async (req, res) => {
   try {
-    
-   // console.log("Recebido no Backend:", req.body); 
+    console.log("Recebido no Backend:", req.body); 
 
     const { prompt } = req.body;
 
     if (!prompt) {
-      return res.status(400).json({ error: 'O prompt é obrigatório. O servidor recebeu: ' + JSON.stringify(req.body) });
+      return res.status(400).json({ error: 'O prompt é obrigatório.' });
     }
 
-    const apiKey = process.env.REACT_APP_GEMINI_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
+
+    if (!apiKey) {
+      console.error("ERRO CRÍTICO: Chave API não encontrada no .env");
+      return res.status(500).json({ error: 'Configuração do servidor inválida (API Key ausente).' });
+    }
 
     const systemPrompt = `
       Gere um JSON estrito para uma UI baseada nesta vibe.
@@ -35,14 +41,21 @@ app.post('/api/analyze', async (req, res) => {
       }
     `;
 
+    // 🚀 CORREÇÃO CRÍTICA:
+    // A URL para o gemini-1.5-flash na v1beta mudou ligeiramente ou requer essa estrutura exata.
+    // Se o 1.5-flash continuar falhando, o fallback seguro é o 'gemini-pro'.
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: `Descrição: "${prompt}"` }] }],
-          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents: [{ 
+            role: "user",
+            parts: [{ text: `System: ${systemPrompt}\nUser Vibe: ${prompt}` }] 
+          }],
+          // Removemos o systemInstruction separado para garantir compatibilidade
+          // e embutimos no prompt do usuário acima.
           generationConfig: { responseMimeType: "application/json" }
         }),
       }
@@ -52,7 +65,8 @@ app.post('/api/analyze', async (req, res) => {
 
     if (!response.ok) {
         console.error("Erro no Google:", data);
-        return res.status(500).json({ error: 'Falha ao processar com IA' });
+        const errorMessage = data.error?.message || 'Falha ao processar com IA';
+        return res.status(500).json({ error: errorMessage });
     }
 
     const textResult = data.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -64,7 +78,7 @@ app.post('/api/analyze', async (req, res) => {
   }
 });
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001; 
 app.listen(PORT, () => {
   console.log(`✅ Servidor rodando seguro na porta ${PORT}`);
 });
