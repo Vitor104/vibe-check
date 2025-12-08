@@ -4,16 +4,15 @@ const cors = require('cors');
 
 const app = express();
 
-// --- MIDDLEWARES (A Ordem Importa Muito!) ---
+
 app.use(cors()); 
-// ESTA LINHA ABAIXO É CRÍTICA: Ela ensina o servidor a ler JSON
 app.use(express.json()); 
 
 // --- ROTAS ---
 app.post('/api/analyze', async (req, res) => {
   try {
-    // Log para debug: Vamos ver o que está chegando no servidor
-    console.log("Recebido no Backend:", req.body); 
+    
+   // console.log("Recebido no Backend:", req.body); 
 
     const { prompt } = req.body;
 

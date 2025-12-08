@@ -25,7 +25,7 @@ export default function App() {
 
   const handleAnalyze = async () => {
     if (!prompt.trim()) return;
-    console.time("⏱️ Tempo Total da Requisição");
+    
     
     setLoading(true);
     setError(null);
@@ -47,7 +47,7 @@ export default function App() {
       }
     } finally {
       setLoading(false);
-      console.timeEnd("⏱️ Tempo Total da Requisição");
+      
     }
   };
 
